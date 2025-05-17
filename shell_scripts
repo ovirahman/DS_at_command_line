@@ -1,0 +1,109 @@
+#!/bin/bash
+
+
+## shell function
+
+fac() { (echo 1; seq $1) | paste -s -d\* - | bc; }
+
+    # (echo 1; seq $1): generates numbers from 1 to $1, starting with 1
+    # paste -s -d'*' - : combines all numbers into a single multiplication expression
+    # bc: evaluates the expression
+
+
+# pipe
+curl -s "https://www.gutenberg.org/files/11/11-0.txt" | grep " CHAPTER"
+
+    # This script downloads the full text of "Alice’s Adventures in Wonderland"
+    # from Project Gutenberg and lists all chapter headings.
+
+    # Step 1: Use curl to silently (-s) download the book from the URL
+    # Step 2: Pipe the content into grep to filter and print lines containing " CHAPTER"
+    #         The leading space in " CHAPTER" helps avoid unrelated matches.
+
+
+# wc 
+curl -s "https://www.gutenberg.org/files/11/11-0.txt" | grep " CHAPTER" | wc -l
+    # If no file is specified, wc reads from standard input.
+    # Options
+    # -l: Counts the number of lines.
+    # -w: Counts the number of words.
+    # -c: Counts the number of bytes.
+    # -m: Counts the number of characters.
+    # -L: Prints the length of the longest line.
+
+
+# Redirect the output
+curl "https://www.gutenberg.org/files/11/11-0.txt" | grep " CHAPTER" > chapters.txt
+    # Redirect the output to a file named chapters.txt
+
+
+# You can also append the output to a file with >>, meaning the output is added after the original contents:
+echo -n "Hello" > greeting.txt
+echo " World" >> greeting.txt
+
+
+# count
+cat greeting.txt | wc -w
+
+# can be achieved by using the smaller-than-sign (<)
+< greeting.txt wc -w
+    # directly passing the file to the standard input of wc without running an additional process
+
+# wc multiple arguments
+wc -w greeting.txt movies.txt
+
+
+#redirect standard error to /dev/null as follows:
+cat movies.txt 404.txt 2> /dev/null
+
+
+dseq 5 > dates.txt
+< dates.txt nl | sponge dates.txt
+bat dates.txt
+    # '< dates.txt': reads from 'dates.txt' using input redirection
+    # 'nl': numbers the lines from the input
+    # 'sponge dates.txt': temporarily soaks up the input and then writes it back to 'dates.txt'
+    #    This prevents the file from being truncated before the command finishes
+    #    (a common issue with shell redirection when writing to the same file you're reading from)
+
+
+#mv
+mv ../../greeting.txt hello.txt
+
+
+# cp (copy)
+cp hello.txt bye.txt
+rm bye.txt 
+
+# If you want to remove an entire directory with all its contents, specify the -r option, which stands for recursive:
+rm -r /data/ch02/old
+
+#All of the above command-line tools accept the -v option, which stands for verbose, so that they output what’s going on. For example:
+
+mkdir -v backup
+
+
+#All tools but mkdir also accept the -i option, which stands for interactive, and causes the tools to ask you for confirmation.
+rm -i *
+    # zsh: sure you want to delete all 12 files in /data [yn]? n
+
+
+# trim with pipe
+cat ../ch07/tips.csv | trim 5 25
+
+
+# tee
+seq 0 2 100 | tee even.txt | trim 5
+    # Step 1: Generate even numbers from 0 to 100 with a step of 2
+    # Step 2: `tee even.txt` writes output to the file AND passes it downstream
+    # Step 3: `trim 5` is assumed to be a command that keeps only the first 5 lines
+    #         If 'trim' is not installed, replace with `head -n 5`
+
+
+# help manual
+man tar | trim 20
+man zshbuiltins | trim
+jq --help | trim
+
+# tldr
+tldr tar | trim 20

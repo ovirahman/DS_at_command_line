@@ -1,0 +1,3 @@
+docker pull datasciencetoolbox/dsatcl2e
+
+docker run --rm -it -v "$(pwd)":/data datasciencetoolbox/dsatcl2e
