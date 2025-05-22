@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This repository includes code adapted from Data Science at the Command Line by Jeroen Janssens, used under the MIT License.
+# https://github.com/jeroenjanssens/data-science-at-the-command-line
 
 ## shell function
 
@@ -107,3 +109,243 @@ jq --help | trim
 
 # tldr
 tldr tar | trim 20
+
+##############################
+
+# chapter 3
+
+# curl and save
+curl -s "https://en.wikipedia.org/wiki/List_of_windmills_in_Friesland" -O
+curl -s "https://en.wikipedia.org/wiki/List_of_windmills_in_Friesland" > friesland.html
+curl -s "dict://dict.org/d:windmill" | trim
+curl -s "https://bit.ly/2XBxvwK"
+curl -s "https://youtu.be/dQw4w9WgXcQ" | trim
+curl -sI "https://youtu.be/dQw4w9WgXcQ" | trim
+
+
+# decompress with tar
+tar -xzf logs.tar.gz
+    # This will unpack the logs.tar.gz file into the current directory
+    # Command breakdown:
+    # tar      : archive utility for creating/extracting tarballs
+    # -x       : extract files from the archive
+    # -z       : filter the archive through gzip (for .gz files)
+    # -f       : specifies the name of the tar file to operate on
+
+tar -tzf logs.tar.gz | trim
+    # Command breakdown:
+    # tar -t    : list the contents of the archive
+    # -z        : filter through gzip (.gz support)
+    # -f        : use the file named logs.tar.gz
+    # | trim    : pass the list to a command called 'trim' (assumed to be installed)
+
+
+# mkdir and extract those files there using the -C option.
+
+mkdir logs
+ 
+tar -xzf logs.tar.gz -C logs
+
+
+
+# csv
+csvlook tmnt-with-header.csv
+ #from csvkit
+
+csvlook -H tmnt-missing-newline.csv 
+    #The -H option specifies that the CSV file has no header
+
+# excel to csv
+curl https://cms-assets.nporadio.nl/npoRadio2/TOP-2000-2020.xlsx > top2000.xlsx
+ 
+in2csv top2000.xlsx | tee top2000.csv | trim
+
+csvgrep top2000.csv --columns ARTIEST --regex '^Queen$' | csvlook -I
+
+
+in2csv --names top2000.xlsx
+    # prints the names of all the worksheets
+
+
+#Query relational database
+sql2csv --db 'sqlite:///r-datasets.db' \> --query 'SELECT row_names AS car, mpg FROM mtcars ORDER BY mpg' | csvlook
+
+
+# Calling Web APIs
+curl -s "https://anapioficeandfire.com/api/characters/583" | jq '.'
+    # curl -s   : silently fetch data from a URL (no progress or errors shown)
+    # "https://anapioficeandfire.com/api/characters/583" : API endpoint for Jon Snow
+    # | jq '.'  : formats and indents the raw JSON for easier reading
+
+# API Authentication
+curl -s "http://newsapi.org/v2/everything?q=linux&apiKey=$(< /data/.secret/newsapi.org_apikey)" |  jq '.' | trim 30
+
+
+# streaming APIs
+curl -s "https://stream.wikimedia.org/v2/stream/recentchange" | sample -s 10 > wikimedia-stream-sample
+    # take a 10 second sample of one of Wikimedia’s streaming APIs
+
+
+# sed -- stream editor
+< wikimedia-stream-sample sed -n 's/^data: //p' | jq 'select(.type == "edit" and .server_name == "en.wikipedia.org") | .title'
+    # This sed expression only prints lines that start with data: and prints the part after the semicolon, which happens to be JSON.
+    # This jq expression prints the title key of JSON objects that have a certain type and server_name.
+
+# fun with telnet
+telnet starwarstel.net
+
+
+
+#######################
+
+# Chapter 4 Creating Command-line Tools
+curl -sL "https://www.gutenberg.org/files/11/11-0.txt" |
+tr '[:upper:]' '[:lower:]' |
+grep -oE "[a-z\']{2,}" |
+sort |
+uniq -c |
+sort -nr | 
+head -n 10
+    # Downloading an ebook using curl.
+    # Converting the entire text to lowercase using tr47.
+    # Extracting all the words using grep48 and put each word on separate line.
+    # Sort these words in alphabetical order using sort49.
+    # Remove all the duplicates and count how often each word appears in the list using uniq50.
+    # Sort this list of unique words by their count in descending order using sort.
+    # Keep only the top 10 lines (i.e., words) using head.
+
+# 
+curl -sL "https://raw.githubusercontent.com/stopwords-iso/stopwords-en/master/
+stopwords-en.txt" |
+sort | tee stopwords | trim 20
+
+
+#
+curl -sL "https://www.gutenberg.org/files/11/11-0.txt" |
+tr '[:upper:]' '[:lower:]' |
+grep -oE "[a-z\']{2,}" |
+sort |
+grep -Fvwf stopwords |
+uniq -c |
+sort -nr |
+head -n 10
+     # Obtain the patterns from a file (stopwords in our case), one per line, with -f. 
+    # Interpret those patterns as fixed strings with -F. Select only those lines containing matches that form whole words with -w. 
+    # Select non-matching lines with -v
+
+## text edditor
+fc 
+
+## chmod giving permission to execute
+
+cp -v top-words-{1,2}.sh
+ 
+chmod u+x top-words-2.sh
+    # The argument u+x consists of three characters: 
+    # (1) u indicates that we want to change the permissions for the user who owns the file,
+    #  which is you, because you created the file; 
+    # (2) + indicates that we want to add a permission; and 
+    # (3) x, which indicates the permissions to execute.
+
+##  Define Shebang
+ #!/usr/bin/env bash
+
+## Remove Fixed Input
+
+sed -i '2d' top-words-4.sh
+
+    # sed: Stream editor for filtering and transforming text.
+    # -i: Edits the file in place, saving the changes directly to top-words-4.sh.
+    # '2d': Instructs sed to delete (d) the second line (2) of the file.
+
+## add arguments
+#!/usr/bin/env bash
+NUM_WORDS="${1:-10}"
+tr '[:upper:]' '[:lower:]' |
+grep -oE "[a-z\']{2,}" |
+sort |
+grep -Fvwf stopwords |
+uniq -c |
+sort -nr |
+head -n "${NUM_WORDS}"
+    # The variable NUM_WORDS is set to the value of $1, which is a special variable in Bash. 
+    # It holds the value of the first command-line argument passed to our command-line tool. 
+    # The table below lists the other special variables that Bash offers. If no value is specified, it will take on the value “10.”
+    # Note that in order to use the value of the $NUM_WORDS variable, 
+    # you need to put a dollar sign in front of it. When you set it, you don’t write a dollar sign.
+
+
+## Extend Your PATH
+echo $PATH
+echo $PATH | tr ':' '\n'
+cp -v top-words{-5.sh,}
+export PATH="${PATH}:/data/data/ch04"
+< alice.txt top-words 10
+
+
+# python and R
+time < alice.txt top-words 5
+time < alice.txt top-words.py 5
+time < alice.txt top-words.R 5
+
+
+
+##########################
+
+# Chapter 5: Scrubbing Data
+
+# Filtering Lines
+seq -f "Line %g" 10 | tee lines
+
+< lines head -n 3
+< lines sed -n '1,3p'
+< lines awk 'NR <= 3'
+    # can print the first 3 lines using either head, sed, or awk
+
+
+< lines tail -n 3
+ # tail
+
+< lines tail -n +4
+< lines sed '1,3d'
+< lines sed -n '1,3!p'
+    # removing first three lines
+
+< lines head -n -3
+    # remove last three lines
+
+< lines sed -n '4,6p'
+< lines awk '(NR>=4) && (NR<=6)'
+< lines head -n 6 | tail -n 3
+    # print specific lines using a either sed, awk, or a combination of head and tail
+
+
+
+< lines sed -n '1~2p'
+< lines awk 'NR%2'
+    # print odd lines with sed by specifying a start and a step, or with awk by using the modulo operator
+
+
+
+< lines sed -n '0~2p'
+< lines awk '(NR+1)%2'
+    # Printing even lines works in a similar manner
+
+
+# pattern with grepl
+< alice.txt grep -i chapter
+ #The -i options specifies that the matching should be case-insensitive.
+
+ < alice.txt grep -E '^CHAPTER (.*)\. The'
+    # print the headings that start with The
+    # specify the -E option in order to enable regular expressions
+
+< alice.txt grep -Ev '^\s$' | wc -l
+    # With the -v option you invert the matches
+    # The regular expression '^\s$' matches lines that contain white space, only
+    #  using wc -l, you can count the number of non-empty lines
+
+
+# sample
+seq -f "Line %g" 1000 | sample -r 1%
+

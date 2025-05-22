@@ -5,3 +5,22 @@
 
 * Docker is truly a brilliant piece of software. In this chapter I’ve briefly explained how to download a Docker image and run a Docker container, but it might be worthwhile to learn how to create your own Docker images. The book Docker: Up & Running by Sean Kane and Karl Matthias is a good resource as well.
 
+
+# Command line tools
+https://github.com/jeroenjanssens/dsutils
+
+# csvkit
+https://csvkit.readthedocs.io/en/latest/
+https://github.com/wireservice/csvkit
+
+# Command line
+* to learn more about programming in Bash --- Classic Shell Programming by Arnold Robbins and Nelson Beebe and Bash Cookbook by Carl Albing and JP Vossen.
+* https://www.shellcheck.net/  --- s an online tool that will check your Bash code for mistakes and vulnerabilities.
+* The book Ten Essays on Fizz Buzz by Joel Grus is an insightful and fun collection of ten different ways to solve Fizz Buzz with Python.
+
+
+
+
+
+
+
