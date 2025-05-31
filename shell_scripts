@@ -294,6 +294,14 @@ time < alice.txt top-words.R 5
 
 # Chapter 5: Scrubbing Data
 
+#transformation
+
+
+grep -E "fizz|buzz" fb.seq | sort | uniq -c | sort -nr > fb.cnt
+< fb.cnt awk 'BEGIN { print "value,count" } { print $2","$1 }' > fb.csv
+rush plot -x value -y count --geom col --height 2 fb.csv > fb.png
+    #rush to run r script from terminal. developed by the author of this book
+
 # Filtering Lines
 seq -f "Line %g" 10 | tee lines
 
@@ -348,4 +356,66 @@ seq -f "Line %g" 10 | tee lines
 
 # sample
 seq -f "Line %g" 1000 | sample -r 1%
+
+# Extracting Values
+grep -i chapter alice.txt | cut -d ' ' -f 3-
+    #Here, each line that’s passed to cut is being split on spaces into fields, and then the third field to the last field is being printed.
+sed -rn 's/^CHAPTER ([IVXLCDM]{1,})\. (.*)$/\2/p' alice.txt | trim 3
+grep -i chapter alice.txt | cut -c 9-
+
+< alice.txt grep -oE '\w{2,}' | trim
+
+
+< alice.txt tr '[:upper:]' '[:lower:]' | grep -oE '\w{2,}' |grep -E '^a.*e$' | sort | uniq | sort -nr | trim
+    # words that start with an a and end with an e
+
+# replacing and deleting values
+echo 'hello world!' | tr ' ' '_'
+    #using tr
+
+echo 'hello world!' | tr ' !' '_?'
+    #more than one character replaced
+
+
+echo 'hello world!' | tr -d ' !'
+    # delete characters
+
+echo 'hello world!' | tr '[a-z]' '[A-Z]'
+echo 'hello world!' | tr '[:lower:]' '[:upper:]'
+    # convert text to uppercase
+
+
+echo 'hallo wêreld!' | tr '[:lower:]' '[:upper:]'
+echo 'hallo wêreld!' | sed 's/[[:lower:]]*/\U&/g'
+    # use 'sed' for non ASCII characters
+
+Rscript -e 'args <- commandArgs(trailingOnly=T); cat(toupper(args[1]), "!\n")' 'hallo wêreld!'
+    # R
+
+
+echo ' hello     world!' |
+sed -re 's/hello/bye/' | 
+sed -re 's/\s+/ /g' | 
+sed -re 's/\s+//'
+
+    # sed -re 's/hello/bye/' Replace hello with bye.
+    # sed -re 's/\s+/ /g' Replace any whitespace with one space. The flag g stands for global, meaning that the same substitution can be applied more than once on the same line.
+    # sed -re 's/\s+//' This only removes leading spaces because I didn’t specify the flag g here.
+
+
+echo ' hello     world!' |
+sed -re 's/hello/bye/;s/\s+/ /g;s/\s+//'
+    # same thing in one sed command
+
+
+
+# CSV
+
+# body, header and cols (command line tools -- comes from dsutils)
+
+echo -e "value\n7\n2\n5\n3" | body sort -n
+    # It works like this:
+    # Take one line from standard in and store it as a variable named $header.
+    # Print out the header.
+    # Execute all the command-line arguments passed to body on the remaining data in standard in.
 
