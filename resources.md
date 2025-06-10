@@ -14,7 +14,7 @@ https://csvkit.readthedocs.io/en/latest/
 https://github.com/wireservice/csvkit
 
 # Command line
-* to learn more about programming in Bash --- Classic Shell Programming by Arnold Robbins and Nelson Beebe and Bash Cookbook by Carl Albing and JP Vossen.
+* Books to learn more about programming in Bash --- Classic Shell Programming by Arnold Robbins and Nelson Beebe and Bash Cookbook by Carl Albing and JP Vossen.
 * https://www.shellcheck.net/  --- s an online tool that will check your Bash code for mistakes and vulnerabilities.
 * The book Ten Essays on Fizz Buzz by Joel Grus is an insightful and fun collection of ten different ways to solve Fizz Buzz with Python.
 

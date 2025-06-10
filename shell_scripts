@@ -418,4 +418,43 @@ echo -e "value\n7\n2\n5\n3" | body sort -n
     # Take one line from standard in and store it as a variable named $header.
     # Print out the header.
     # Execute all the command-line arguments passed to body on the remaining data in standard in.
+    # IFS= read -r header
+    # printf '%s\n' "$header"
+    # "$@"
+
+
+# count lines 
+seq 5 | header -a count | wc -l
+seq 5 | header -a count | body wc -l
+
+# header
+< tips.csv header
+    # print header
+seq 5 | header -a count
+    # add header
+
+seq 5 | header -a line | body wc -l | header -r count
+    # replacing header
+
+seq 5 | header -a line | header -e "tr '[a-z]' '[A-Z]'"
+    # tr header
+
+# cols
+< tips.csv cols -c day body "tr '[a-z]' '[A-Z]'" | head -n 5 | csvlook
+
+
+
+# SQL Queries on CSV -- csvsql
+
+seq 5 | header -a val | csvsql --query "SELECT SUM(val) AS sum FROM stdin"
+    # csvsql comes from csvkit
+
+# Extracting and Reordering Columns -- csvcut
+< iris.csv csvcut -c sepal_length,petal_length,sepal_width,petal_width | csvlook
+< iris.csv csvcut -C species | csvlook
+    # -C = compliment 
+
+echo 'a,b,c,d,e,f,g,h,i\n1,2,3,4,5,6,7,8,9' | csvcut -c $(seq 1 2 9 | paste -sd,)
+    # selects odd columns
+
 
